@@ -48,9 +48,11 @@ public class UserEntity extends BaseEntity {
 
     private String authProviderId;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private RoleType role = RoleType.USER;
 
+    @Builder.Default 
     private boolean isActivated = false;
 
     @Column(unique = true)
