@@ -1,5 +1,6 @@
 package dev.manuthlakdiw.primebasketbackend.config;
 
+import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerTypePredicate;
@@ -21,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
         configurer.addPathPrefix(API_PREFIX,
-                HandlerTypePredicate.forAnnotation(RestController.class)
+                HandlerTypePredicate.forAnnotation(ApiController.class)
                         .and(HandlerTypePredicate.forBasePackage("dev.manuthlakdiw.primebasketbackend"))
         );
     }
