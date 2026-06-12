@@ -36,7 +36,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> {
-            UserSecurityProjection userSecurityProjection = userRepository.findUserEntityByEmail(username)
+            UserSecurityProjection userSecurityProjection = userRepository.findSecuredUserByEmail(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
 

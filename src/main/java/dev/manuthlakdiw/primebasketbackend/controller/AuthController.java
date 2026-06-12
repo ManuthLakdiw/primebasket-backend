@@ -1,9 +1,9 @@
 package dev.manuthlakdiw.primebasketbackend.controller;
 
 import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
-import dev.manuthlakdiw.primebasketbackend.dto.auth.AuthResponse;
-import dev.manuthlakdiw.primebasketbackend.dto.auth.RegisterRequest;
+import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
 import dev.manuthlakdiw.primebasketbackend.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,4 +30,21 @@ public class AuthController {
         return authService.registerUser(request);
     }
 
+    @PostMapping("/verify-otp")
+    public String verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        return authService.verifyOtp(request);
+    }
+
+    @PostMapping("/resend-otp")
+    public ResendOtpResponse resendOtp(@Valid @RequestBody ResendOtpRequest request, HttpServletRequest servletRequest) {
+
+        String ipAddress = servletRequest.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = servletRequest.getRemoteAddr();
+        }
+
+        return authService.resendOtp(request, ipAddress);
+
+
+    }
 }

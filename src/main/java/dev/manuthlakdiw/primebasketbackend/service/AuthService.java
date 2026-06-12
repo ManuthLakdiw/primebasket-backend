@@ -1,7 +1,6 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
-import dev.manuthlakdiw.primebasketbackend.dto.auth.AuthResponse;
-import dev.manuthlakdiw.primebasketbackend.dto.auth.RegisterRequest;
+import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
 
 /**
  * @author manuthlakdiv
@@ -12,4 +11,8 @@ import dev.manuthlakdiw.primebasketbackend.dto.auth.RegisterRequest;
 public interface AuthService {
 
     AuthResponse registerUser(RegisterRequest request);
+
+    String verifyOtp(VerifyOtpRequest request);
+
+    ResendOtpResponse resendOtp(ResendOtpRequest request, String ipAddress);
 }
