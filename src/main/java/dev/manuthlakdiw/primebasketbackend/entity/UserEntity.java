@@ -52,7 +52,7 @@ public class UserEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RoleType role = RoleType.USER;
 
-    @Builder.Default 
+    @Builder.Default
     private boolean isActivated = false;
 
     @Column(unique = true)
@@ -68,11 +68,20 @@ public class UserEntity extends BaseEntity {
             orphanRemoval = true)
     private CartEntity cart;
 
+    @Builder.Default
     @OneToMany(
             mappedBy = "user",
             fetch = FetchType.LAZY,
             orphanRemoval = true
     )
     private List<OrderEntity> orders = new ArrayList<>();
-    
+
+    @Builder.Default
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.MERGE,
+            fetch = FetchType.LAZY
+    )
+    private List<EmailLogEntity> emailLogs = new ArrayList<>();
+
 }
