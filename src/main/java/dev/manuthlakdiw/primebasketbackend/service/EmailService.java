@@ -1,5 +1,7 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
+import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
+
 /**
  * @author manuthlakdiv
  * @email manuthlakdiv2006.com
@@ -8,7 +10,7 @@ package dev.manuthlakdiw.primebasketbackend.service;
  */
 public interface EmailService {
 
-    void sendRegistrationOtp(String toEmail, String firstName, String otp);
+    void sendRegistrationOtp(UserEntity userEntity, String otp);
 
-    void sendAccountLockedAlert(String toEmail, String firstName);
+    void sendAccountLockedAlert(UserEntity userEntity);
 }

@@ -42,9 +42,10 @@ public class UserEntity extends BaseEntity {
 
     private LocalDateTime lastLogin;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuthProviderType authProvider;
+    private AuthProviderType authProvider = AuthProviderType.LOCAL;
 
     private String authProviderId;
 

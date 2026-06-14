@@ -1,5 +1,9 @@
 package dev.manuthlakdiw.primebasketbackend.service.impl;
 
+import dev.manuthlakdiw.primebasketbackend.entity.EmailLogEntity;
+import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
+import dev.manuthlakdiw.primebasketbackend.entity.types.MailStatusType;
+import dev.manuthlakdiw.primebasketbackend.repository.EmailLogRepository;
 import dev.manuthlakdiw.primebasketbackend.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
+    private final EmailLogRepository emailLogRepository;
 
     @Value("${spring.mail.username}")
     private String senderEmail;
@@ -27,37 +32,39 @@ public class EmailServiceImpl implements EmailService {
 
     @Async
     @Override
-    public void sendRegistrationOtp(String toEmail, String firstName, String otp) {
+    public void sendRegistrationOtp(UserEntity userEntity, String otp) {
         String subject = "Your PrimeBasket Verification Code 🛒";
-        String htmlContent = buildOtpTemplate(firstName, otp);
+        String htmlContent = buildOtpTemplate(userEntity.getFirstName(), otp);
 
-        sendHtmlEmail(toEmail, subject, htmlContent);
+        sendHtmlEmail(userEntity, subject, htmlContent);
     }
 
 
     @Async
     @Override
-    public void sendAccountLockedAlert(String toEmail, String firstName) {
+    public void sendAccountLockedAlert(UserEntity userEntity) {
         String subject = "⚠️ Security Alert: Verification Paused - PrimeBasket";
-        String htmlContent = buildAccountLockedTemplate(firstName);
+        String htmlContent = buildAccountLockedTemplate(userEntity.getFirstName());
 
-        sendHtmlEmail(toEmail, subject, htmlContent);
+        sendHtmlEmail(userEntity, subject, htmlContent);
     }
 
-    private void sendHtmlEmail(String toEmail, String subject, String htmlContent) {
+    private void sendHtmlEmail(UserEntity userEntity, String subject, String htmlContent) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setFrom(senderEmail);
-            helper.setTo(toEmail);
+            helper.setTo(userEntity.getEmail());
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
 
+            saveEmailLog(userEntity, subject, htmlContent, MailStatusType.SENT, null);
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email to: " + toEmail, e);
+            throw new RuntimeException("Failed to send email to: " + userEntity.getEmail(), e);
         }
     }
 
@@ -104,7 +111,7 @@ public class EmailServiceImpl implements EmailService {
                \s""".formatted(firstName, otp);
     }
 
-
+    
     private String buildAccountLockedTemplate(String firstName) {
         return """
                 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; padding: 40px 20px;">
@@ -156,6 +163,18 @@ public class EmailServiceImpl implements EmailService {
                \s""".formatted(firstName);
     }
 
+    private void saveEmailLog(UserEntity user, String subject, String body, MailStatusType status, String error) {
+        EmailLogEntity log = EmailLogEntity.builder()
+                .recipientEmail(user.getEmail())
+                .subject(subject)
+                .body(body)
+                .status(status)
+                .errorMessage(error)
+                .user(user)
+                .build();
+
+        emailLogRepository.save(log);
+    }
 
 }
 
