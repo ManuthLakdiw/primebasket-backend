@@ -26,7 +26,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+    public UserDetailResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.registerUser(request);
     }
 
@@ -45,6 +45,11 @@ public class AuthController {
 
         return authService.resendOtp(request, ipAddress);
 
+    }
 
+
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        return authService.authenticate(request);
     }
 }

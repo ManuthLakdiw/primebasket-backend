@@ -1,17 +1,15 @@
 package dev.manuthlakdiw.primebasketbackend.service.impl;
 
 import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
-import dev.manuthlakdiw.primebasketbackend.entity.EmailLogEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
-import dev.manuthlakdiw.primebasketbackend.entity.types.AuthProviderType;
-import dev.manuthlakdiw.primebasketbackend.entity.types.MailStatusType;
-import dev.manuthlakdiw.primebasketbackend.repository.EmailLogRepository;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.AuthService;
 import dev.manuthlakdiw.primebasketbackend.service.EmailService;
+import dev.manuthlakdiw.primebasketbackend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,11 +33,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final StringRedisTemplate redisTemplate;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtService;
 
 
     @Override
     @Transactional
-    public AuthResponse registerUser(RegisterRequest request) {
+    public UserDetailResponse registerUser(RegisterRequest request) {
         Optional<UserEntity> existingUserOpt = userRepository.findUserEntityByEmail(request.email());
 
         UserEntity user;
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
         emailService.sendRegistrationOtp(user, otp);
 
-        return AuthResponse.builder()
+        return UserDetailResponse.builder()
                 .email(savedUser.getEmail())
                 .firstName(savedUser.getFirstName())
                 .lastName(savedUser.getLastName())
@@ -159,6 +159,24 @@ public class AuthServiceImpl implements AuthService {
                 "A new OTP has been sent.",
                 false,
                 120
+        );
+    }
+
+    @Override
+    public LoginResponse authenticate(LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.email(),
+                        request.password()
+                )
+        );
+
+        String accessToken = jwtService.generateAccessToken(request.email());
+        String refreshToken = jwtService.generateRefreshToken(request.email());
+
+        return new LoginResponse(
+                accessToken,
+                refreshToken
         );
     }
 

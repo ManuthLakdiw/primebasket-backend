@@ -10,7 +10,7 @@ import lombok.Builder;
  */
 
 @Builder
-public record AuthResponse(
+public record UserDetailResponse(
         String email,
         String firstName,
         String lastName,

@@ -10,9 +10,11 @@ import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
  */
 public interface AuthService {
 
-    AuthResponse registerUser(RegisterRequest request);
+    UserDetailResponse registerUser(RegisterRequest request);
 
     String verifyOtp(VerifyOtpRequest request);
 
     ResendOtpResponse resendOtp(ResendOtpRequest request, String ipAddress);
+
+    LoginResponse authenticate(LoginRequest request);
 }
