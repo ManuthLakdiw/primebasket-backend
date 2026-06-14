@@ -1,8 +1,11 @@
 package dev.manuthlakdiw.primebasketbackend.service.impl;
 
 import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
+import dev.manuthlakdiw.primebasketbackend.entity.EmailLogEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.types.AuthProviderType;
+import dev.manuthlakdiw.primebasketbackend.entity.types.MailStatusType;
+import dev.manuthlakdiw.primebasketbackend.repository.EmailLogRepository;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.AuthService;
 import dev.manuthlakdiw.primebasketbackend.service.EmailService;
@@ -68,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
         String redisKey = "OTP:" + savedUser.getEmail();
         redisTemplate.opsForValue().set(redisKey, otp, 2, TimeUnit.MINUTES);
 
-        emailService.sendRegistrationOtp(savedUser.getEmail(), savedUser.getFirstName(), otp);
+        emailService.sendRegistrationOtp(user, otp);
 
         return AuthResponse.builder()
                 .email(savedUser.getEmail())
@@ -136,14 +139,14 @@ public class AuthServiceImpl implements AuthService {
         String newOtp = generateOtp();
         String otpKey = "OTP:" + email;
         redisTemplate.opsForValue().set(otpKey, newOtp, 2, TimeUnit.MINUTES);
-        emailService.sendRegistrationOtp(user.getEmail(), user.getFirstName(), newOtp);
+        emailService.sendRegistrationOtp(user, newOtp);
 
         if (count != null && count >= 3) {
             redisTemplate.opsForValue().set(blockKey, "BLOCKED", 30, TimeUnit.MINUTES);
 
             redisTemplate.delete(countKey);
 
-             emailService.sendAccountLockedAlert(user.getEmail(), user.getFirstName());
+             emailService.sendAccountLockedAlert(user);
 
             return new ResendOtpResponse(
                     "Maximum attempts reached. A final OTP has been sent. Your network is now blocked for 30 minutes.",
@@ -161,9 +164,10 @@ public class AuthServiceImpl implements AuthService {
 
     private String generateOtp() {
         Random random = new Random();
-        int otpNumber = 10000 + random.nextInt(90000);
+        int otpNumber = 1000 + random.nextInt(9000);
         return String.valueOf(otpNumber);
     }
+
 
 }
 
