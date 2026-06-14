@@ -17,7 +17,7 @@ public record VerifyOtpRequest(
         String email,
 
         @NotBlank(message = "OTP is required")
-        @Pattern(regexp = "^\\d{5}$", message = "OTP must contain exactly 5 digits")
+        @Pattern(regexp = "^\\d{4}$", message = "OTP must contain exactly 4 digits")
         String otp
 ) {
 }
