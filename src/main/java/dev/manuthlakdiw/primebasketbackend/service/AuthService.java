@@ -17,4 +17,6 @@ public interface AuthService {
     ResendOtpResponse resendOtp(ResendOtpRequest request, String ipAddress);
 
     LoginResponse authenticate(LoginRequest request);
+
+    LoginResponse requestNewAccessToken(RefreshTokenRequest request);
 }

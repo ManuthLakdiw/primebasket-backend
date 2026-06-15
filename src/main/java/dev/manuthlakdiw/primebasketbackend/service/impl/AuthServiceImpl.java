@@ -173,6 +173,32 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
+    @Override
+    public LoginResponse requestNewAccessToken(RefreshTokenRequest request) {
+        String refreshToken = request.refreshToken();
+
+        if (!jwtService.isRefreshTokenMathematicallyValid(refreshToken)) {
+            throw new RuntimeException("Invalid or expired refresh token. Please login again.");
+        }
+
+
+        String username = jwtService.extractUsernameFromRefreshToken(refreshToken);
+
+        UserEntity user = userRepository.findUserEntityByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.isActivated()) {
+            throw new RuntimeException("User account is locked or deactivated.");
+        }
+
+        String newAccessToken = jwtService.generateAccessToken(username);
+
+        return new LoginResponse(
+                newAccessToken,
+                refreshToken
+        );
+    }
+
     private String generateOtp() {
         Random random = new Random();
         int otpNumber = 1000 + random.nextInt(9000);

@@ -86,7 +86,6 @@ public class JwtUtil {
         return extractUsername(token, accessTokenSecret);
     }
 
-    // JwtAuthFilter එක ඇතුළේ පාවිච්චි කරන්නේ මේකයි (Mathematical + DB Check දෙකම වෙනවා)
     public boolean isAccessTokenValid(String token, UserDetails userDetails) {
         return isTokenValidGeneric(token, accessTokenSecret, userDetails);
     }
@@ -101,7 +100,6 @@ public class JwtUtil {
         return extractUsername(token, refreshTokenSecret);
     }
 
-    // AuthServiceImpl එකේදී මුලින්ම Refresh Token එක ගණිතමය වශයෙන් හරිද බලන්න පාවිච්චි කරන්නේ මේකයි
     public boolean isRefreshTokenMathematicallyValid(String token) {
         return isTokenMathematicallyValid(token, refreshTokenSecret);
     }

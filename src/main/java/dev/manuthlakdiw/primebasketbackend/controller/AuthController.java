@@ -3,13 +3,19 @@ package dev.manuthlakdiw.primebasketbackend.controller;
 import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
 import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
 import dev.manuthlakdiw.primebasketbackend.service.AuthService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.security.Principal;
 
 /**
  * @author manuthlakdiv
@@ -47,9 +53,13 @@ public class AuthController {
 
     }
 
-
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.authenticate(request);
+    }
+
+    @PostMapping("/refresh")
+    public LoginResponse refreshAccessToken(@RequestBody @Valid RefreshTokenRequest request) {
+        return authService.requestNewAccessToken(request);
     }
 }
