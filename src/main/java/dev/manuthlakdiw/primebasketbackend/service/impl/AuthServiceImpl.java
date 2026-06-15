@@ -1,10 +1,14 @@
 package dev.manuthlakdiw.primebasketbackend.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
+import dev.manuthlakdiw.primebasketbackend.entity.types.AuthProviderType;
+import dev.manuthlakdiw.primebasketbackend.entity.types.RoleType;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.AuthService;
 import dev.manuthlakdiw.primebasketbackend.service.EmailService;
+import dev.manuthlakdiw.primebasketbackend.service.GoogleAuthService;
 import dev.manuthlakdiw.primebasketbackend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtService;
+    private final GoogleAuthService googleAuthService;
 
 
     @Override
@@ -156,6 +164,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public LoginResponse authenticate(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -163,6 +172,11 @@ public class AuthServiceImpl implements AuthService {
                         request.password()
                 )
         );
+
+        UserEntity user = userRepository.findUserEntityByEmail(request.email()).orElseThrow(
+                () -> new RuntimeException("Account not found. Please contact admin to reset your password.")
+        );
+        user.setLastLogin(LocalDateTime.now());
 
         String accessToken = jwtService.generateAccessToken(request.email());
         String refreshToken = jwtService.generateRefreshToken(request.email());
@@ -198,6 +212,50 @@ public class AuthServiceImpl implements AuthService {
                 refreshToken
         );
     }
+
+    @Override
+    @Transactional
+    public LoginResponse googleLogin(GoogleLoginRequest request) {
+        try {
+            GoogleIdToken.Payload payload = googleAuthService.verifyToken(request.idToken());
+
+            String email = payload.getEmail();
+            String firstName = (String) payload.get("given_name");
+            String lastName = (String) payload.get("family_name");
+            String googleSubjectId = payload.getSubject();
+
+            userRepository.findUserEntityByEmail(email)
+                    .map(existingUser -> {
+                        existingUser.setAuthProvider(AuthProviderType.GOOGLE);
+                        existingUser.setAuthProviderId(googleSubjectId);
+                        existingUser.setFirstName(firstName);
+                        existingUser.setLastName(lastName);
+                        existingUser.setLastLogin(LocalDateTime.now());
+                        return existingUser;
+                    })
+                    .orElseGet(() -> {
+                        UserEntity newUser = UserEntity.builder()
+                                .email(email)
+                                .firstName(firstName)
+                                .lastName(lastName)
+                                .authProvider(AuthProviderType.GOOGLE)
+                                .authProviderId(googleSubjectId)
+                                .isActivated(true)
+                                .role(RoleType.USER)
+                                .lastLogin(LocalDateTime.now())
+                                .build();
+                        return userRepository.save(newUser);
+                    });
+
+            String accessToken = jwtService.generateAccessToken(email);
+            String refreshToken = jwtService.generateRefreshToken(email);
+
+            return new LoginResponse(accessToken, refreshToken);
+
+        } catch (GeneralSecurityException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    };
 
     private String generateOtp() {
         Random random = new Random();

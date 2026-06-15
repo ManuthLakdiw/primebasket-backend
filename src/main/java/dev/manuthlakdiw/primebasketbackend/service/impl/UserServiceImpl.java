@@ -5,6 +5,7 @@ import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    @Cacheable(value = "userProfiles", key = "#email")
     public UserDetailResponse getMyProfile(String email) {
         UserEntity user = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));

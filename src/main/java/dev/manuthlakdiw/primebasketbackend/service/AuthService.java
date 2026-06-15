@@ -19,4 +19,6 @@ public interface AuthService {
     LoginResponse authenticate(LoginRequest request);
 
     LoginResponse requestNewAccessToken(RefreshTokenRequest request);
+
+    LoginResponse googleLogin(GoogleLoginRequest request);
 }
