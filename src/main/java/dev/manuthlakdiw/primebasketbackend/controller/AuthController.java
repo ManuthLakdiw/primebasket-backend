@@ -67,4 +67,10 @@ public class AuthController {
     public LoginResponse googleLogin(@RequestBody GoogleLoginRequest request) {
         return authService.googleLogin(request);
     }
+
+
+    @PostMapping("/facebook")
+    public LoginResponse facebookLogin(@RequestBody FacebookLoginRequest request) {
+        return authService.facebookLogin(request);
+    }
 }

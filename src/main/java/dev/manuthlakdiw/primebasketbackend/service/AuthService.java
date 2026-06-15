@@ -21,4 +21,6 @@ public interface AuthService {
     LoginResponse requestNewAccessToken(RefreshTokenRequest request);
 
     LoginResponse googleLogin(GoogleLoginRequest request);
+
+    LoginResponse facebookLogin(FacebookLoginRequest request);
 }

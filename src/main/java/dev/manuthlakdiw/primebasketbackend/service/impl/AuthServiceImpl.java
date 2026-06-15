@@ -8,6 +8,7 @@ import dev.manuthlakdiw.primebasketbackend.entity.types.RoleType;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.AuthService;
 import dev.manuthlakdiw.primebasketbackend.service.EmailService;
+import dev.manuthlakdiw.primebasketbackend.service.FacebookAuthService;
 import dev.manuthlakdiw.primebasketbackend.service.GoogleAuthService;
 import dev.manuthlakdiw.primebasketbackend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtService;
     private final GoogleAuthService googleAuthService;
+    private final FacebookAuthService facebookAuthService;
 
 
     @Override
@@ -255,7 +258,51 @@ public class AuthServiceImpl implements AuthService {
         } catch (GeneralSecurityException | IOException e) {
             throw new RuntimeException(e);
         }
-    };
+    }
+
+    @Override
+    public LoginResponse facebookLogin(FacebookLoginRequest request) {
+        try {
+            Map<String, Object> payload = facebookAuthService.verifyToken(request.accessToken());
+
+            String facebookId = (String) payload.get("id");
+            String firstName = (String) payload.get("first_name");
+            String lastName = (String) payload.get("last_name");
+
+            String email = payload.containsKey("email") ? (String) payload.get("email") : facebookId + "@facebook.com";
+
+            UserEntity user = userRepository.findUserEntityByEmail(email)
+                    .map(existingUser -> {
+                        existingUser.setAuthProvider(AuthProviderType.FACEBOOK);
+                        existingUser.setAuthProviderId(facebookId);
+                        existingUser.setFirstName(firstName);
+                        existingUser.setLastName(lastName);
+                        existingUser.setLastLogin(LocalDateTime.now());
+                        return existingUser;
+                    })
+                    .orElseGet(() -> {
+                        UserEntity newUser = UserEntity.builder()
+                                .email(email)
+                                .firstName(firstName)
+                                .lastName(lastName)
+                                .authProvider(AuthProviderType.FACEBOOK)
+                                .authProviderId(facebookId)
+                                .isActivated(true)
+                                .role(RoleType.USER)
+                                .lastLogin(LocalDateTime.now())
+                                .build();
+                        return userRepository.save(newUser);
+                    });
+
+            String accessToken = jwtService.generateAccessToken(email);
+            String refreshToken = jwtService.generateRefreshToken(email);
+
+            return new LoginResponse(accessToken, refreshToken);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Facebook Authentication Failed: " + e.getMessage());
+        }
+    }
 
     private String generateOtp() {
         Random random = new Random();
