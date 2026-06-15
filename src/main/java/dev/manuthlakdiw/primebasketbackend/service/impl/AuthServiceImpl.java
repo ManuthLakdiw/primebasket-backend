@@ -42,28 +42,21 @@ public class AuthServiceImpl implements AuthService {
     public UserDetailResponse registerUser(RegisterRequest request) {
         Optional<UserEntity> existingUserOpt = userRepository.findUserEntityByEmail(request.email());
 
-        UserEntity user;
-
         if (existingUserOpt.isPresent()) {
-            user = existingUserOpt.get();
-
-            if (user.isActivated()) {
+            UserEntity existingUser = existingUserOpt.get();
+            if (existingUser.isActivated()) {
                 throw new RuntimeException("Email is already in use. Please login.");
+            } else {
+                throw new RuntimeException("An account with this email exists but is not verified. Please verify your email.");
             }
-
-
-            user.setFirstName(request.firstName());
-            user.setLastName(request.lastName());
-            user.setPassword(passwordEncoder.encode(request.password()));
-
-        } else {
-            user = UserEntity.builder()
-                    .firstName(request.firstName())
-                    .lastName(request.lastName())
-                    .email(request.email())
-                    .password(passwordEncoder.encode(request.password()))
-                    .build();
         }
+
+        UserEntity user = UserEntity.builder()
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .build();
 
         UserEntity savedUser = userRepository.save(user);
 
