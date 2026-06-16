@@ -78,4 +78,7 @@ public class ProductEntity extends BaseEntity {
     )
     private List<OrderItemEntity> orderItems;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryEntity category;
 }
