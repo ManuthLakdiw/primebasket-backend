@@ -1,6 +1,6 @@
 package dev.manuthlakdiw.primebasketbackend.config;
 
-import dev.manuthlakdiw.primebasketbackend.entity.projection.UserSecurityProjection;
+import dev.manuthlakdiw.primebasketbackend.projection.UserSecurityProjection;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

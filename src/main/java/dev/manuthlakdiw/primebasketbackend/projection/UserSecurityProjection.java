@@ -1,4 +1,4 @@
-package dev.manuthlakdiw.primebasketbackend.entity.projection;
+package dev.manuthlakdiw.primebasketbackend.projection;
 
 import dev.manuthlakdiw.primebasketbackend.entity.types.RoleType;
 
