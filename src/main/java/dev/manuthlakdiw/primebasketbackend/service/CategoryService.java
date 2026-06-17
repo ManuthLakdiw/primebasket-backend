@@ -3,7 +3,9 @@ package dev.manuthlakdiw.primebasketbackend.service;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
-import org.springframework.data.domain.Page;
+import dev.manuthlakdiw.primebasketbackend.projection.CategoryDropdownProjection;
+
+import java.util.List;
 
 /**
  * @author manuthlakdiv
@@ -21,4 +23,6 @@ public interface CategoryService {
     CategoryResponse getCategoryById(long id);
 
     PageResponse<CategoryResponse> getAllCategories(int page, int size);
+
+    List<CategoryDropdownProjection> getCategoriesForDropdown();
 }

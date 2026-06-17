@@ -4,6 +4,7 @@ import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
+import dev.manuthlakdiw.primebasketbackend.projection.CategoryDropdownProjection;
 import dev.manuthlakdiw.primebasketbackend.service.CategoryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author manuthlakdiv
@@ -61,4 +64,10 @@ public class CategoryController {
         return categoryService.getAllCategories(page, size);
     }
 
+    @SecurityRequirement(name = "BearerAuth")
+    @GetMapping("/dropdown")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<CategoryDropdownProjection> getCategoriesForDropdown() {
+        return categoryService.getCategoriesForDropdown();
+    }
 }

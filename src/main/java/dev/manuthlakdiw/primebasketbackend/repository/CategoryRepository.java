@@ -2,12 +2,14 @@ package dev.manuthlakdiw.primebasketbackend.repository;
 
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.entity.CategoryEntity;
+import dev.manuthlakdiw.primebasketbackend.projection.CategoryDropdownProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -30,4 +32,6 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
             "FROM CategoryEntity c LEFT JOIN c.products p " +
             "GROUP BY c.id, c.name, c.description")
     Page<CategoryResponse> findAllWithProductCount(Pageable pageable);
+
+    List<CategoryDropdownProjection> findAllByOrderByNameAsc();
 }

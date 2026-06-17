@@ -5,6 +5,7 @@ import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
 import dev.manuthlakdiw.primebasketbackend.entity.CategoryEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.ProductEntity;
+import dev.manuthlakdiw.primebasketbackend.projection.CategoryDropdownProjection;
 import dev.manuthlakdiw.primebasketbackend.repository.CategoryRepository;
 import dev.manuthlakdiw.primebasketbackend.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -124,6 +125,11 @@ public class CategoryServiceImpl implements CategoryService {
         Page<CategoryResponse> categoryPage = categoryRepository.findAllWithProductCount(pageRequest);
 
         return PageResponse.from(categoryPage);
+    }
+
+    @Override
+    public List<CategoryDropdownProjection> getCategoriesForDropdown() {
+        return categoryRepository.findAllByOrderByNameAsc();
     }
 
     private CategoryResponse mapToResponse(CategoryEntity entity) {
