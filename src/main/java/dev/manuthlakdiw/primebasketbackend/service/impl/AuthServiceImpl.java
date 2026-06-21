@@ -12,6 +12,7 @@ import dev.manuthlakdiw.primebasketbackend.service.FacebookAuthService;
 import dev.manuthlakdiw.primebasketbackend.service.GoogleAuthService;
 import dev.manuthlakdiw.primebasketbackend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "userProfiles", key = "#request.email()")
     public UserDetailResponse registerUser(RegisterRequest request) {
         Optional<UserEntity> existingUserOpt = userRepository.findUserEntityByEmail(request.email());
 
@@ -218,6 +220,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "userProfiles", allEntries = true)
     public LoginResponse googleLogin(GoogleLoginRequest request) {
         try {
             GoogleIdToken.Payload payload = googleAuthService.verifyToken(request.idToken());
@@ -261,6 +264,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @CacheEvict(value = "userProfiles", allEntries = true)
     public LoginResponse facebookLogin(FacebookLoginRequest request) {
         try {
             Map<String, Object> payload = facebookAuthService.verifyToken(request.accessToken());
