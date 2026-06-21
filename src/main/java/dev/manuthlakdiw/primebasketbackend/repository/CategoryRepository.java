@@ -29,7 +29,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
 
     @Query("SELECT new dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse(" +
             "c.id, c.name, c.description, COUNT(p)) " +
-            "FROM CategoryEntity c LEFT JOIN c.products p " +
+            "FROM CategoryEntity c LEFT JOIN c.products p WITH p.isDeleted = false " +
             "GROUP BY c.id, c.name, c.description")
     Page<CategoryResponse> findAllWithProductCount(Pageable pageable);
 
