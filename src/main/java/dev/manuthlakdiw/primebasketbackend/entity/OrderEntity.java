@@ -30,10 +30,7 @@ public class OrderEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(
-            nullable = false,
-            unique = true
-    )
+    @Column(nullable = false, unique = true)
     private String orderNumber;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -41,11 +38,6 @@ public class OrderEntity extends BaseEntity {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal deliveryFee = BigDecimal.ZERO;
-
-    private String couponCode;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal discountAmount = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal finalTotal = BigDecimal.ZERO;
@@ -62,16 +54,7 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @OneToMany(
-            mappedBy = "order",
-            fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderItemEntity> orderItems;
-
-    @ManyToOne(
-            fetch = FetchType.LAZY
-    )
-    @JoinColumn(name = "coupon_id")
-    private CouponEntity coupon;
 
 }
