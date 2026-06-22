@@ -19,4 +19,6 @@ public interface PasskeyService {
 
     Map<String, Object> generateLoginOptions(String email);
     LoginResponse verifyLoginAndGenerateToken(PasskeyLoginRequest request);
+
+    void deletePasskey(String email, String passkeyId);
 }

@@ -10,10 +10,7 @@ import dev.manuthlakdiw.primebasketbackend.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Map;
@@ -63,6 +60,13 @@ public class UserController {
     @PutMapping("/me/password")
     public String updatePassword(@Valid @RequestBody UpdatePasswordRequest request, Principal principal){
         return userService.updatePassword(principal.getName(), request);
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @DeleteMapping("/passkeys/{id}")
+    public String deletePasskey(@PathVariable String id, Principal principal) {
+        passkeyService.deletePasskey(principal.getName(), id);
+        return "Passkey deleted successfully";
     }
 
 }

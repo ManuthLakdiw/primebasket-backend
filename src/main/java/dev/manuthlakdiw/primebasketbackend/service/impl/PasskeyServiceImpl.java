@@ -197,4 +197,17 @@ public class PasskeyServiceImpl implements PasskeyService {
             throw new RuntimeException("Failed to verify login: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    @CacheEvict(value = "userProfiles", key = "#email")
+    public void deletePasskey(String email, String passkeyId) {
+        PasskeyEntity passkey = passkeyRepository.findById(java.util.UUID.fromString(passkeyId))
+                .orElseThrow(() -> new RuntimeException("Passkey not found"));
+
+        if (!passkey.getUser().getEmail().equals(email)) {
+            throw new RuntimeException("You are not authorized to delete this passkey");
+        }
+
+        passkeyRepository.delete(passkey);
+    }
 }
