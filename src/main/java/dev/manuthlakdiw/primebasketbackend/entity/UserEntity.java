@@ -85,4 +85,15 @@ public class UserEntity extends BaseEntity {
     )
     private List<EmailLogEntity> emailLogs = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL, 
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<PasskeyEntity> passkeys = new ArrayList<>();
+
+
+
 }

@@ -1,6 +1,8 @@
-package dev.manuthlakdiw.primebasketbackend.dto.auth;
+package dev.manuthlakdiw.primebasketbackend.dto.user;
 
 import lombok.Builder;
+
+import java.util.List;
 
 /**
  * @author manuthlakdiv
@@ -14,7 +16,10 @@ public record UserDetailResponse(
         String email,
         String firstName,
         String lastName,
-        String role
+        String role,
+        String telephone,
+        String authProvider,
+        List<PasskeyResponse> passkeys
 ) {
 
 }

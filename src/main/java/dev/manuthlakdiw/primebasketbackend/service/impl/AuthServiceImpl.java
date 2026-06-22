@@ -2,6 +2,7 @@ package dev.manuthlakdiw.primebasketbackend.service.impl;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
+import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.types.AuthProviderType;
 import dev.manuthlakdiw.primebasketbackend.entity.types.RoleType;

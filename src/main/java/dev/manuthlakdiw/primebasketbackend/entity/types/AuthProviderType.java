@@ -7,5 +7,5 @@ package dev.manuthlakdiw.primebasketbackend.entity.types;
  * @github https://github.com/ManuthLakdiw
  */
 public enum AuthProviderType {
-    LOCAL, GOOGLE, FACEBOOK
+    LOCAL, GOOGLE, FACEBOOK, PASSKEY
 }

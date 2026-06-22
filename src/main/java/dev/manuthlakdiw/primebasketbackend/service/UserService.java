@@ -1,6 +1,10 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
-import dev.manuthlakdiw.primebasketbackend.dto.auth.UserDetailResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePasswordRequest;
+import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePersonalInfoRequest;
+import dev.manuthlakdiw.primebasketbackend.projection.UserSummaryProjection;
 
 /**
  * @author manuthlakdiv
@@ -12,5 +16,11 @@ import dev.manuthlakdiw.primebasketbackend.dto.auth.UserDetailResponse;
 public interface UserService {
 
     UserDetailResponse getMyProfile(String email);
+
+    PageResponse<UserSummaryProjection> getAllCustomerAccounts(int page, int size);
+
+    String updatePersonalInfo(String email, UpdatePersonalInfoRequest request);
+
+    String updatePassword(String email, UpdatePasswordRequest request);
 
 }

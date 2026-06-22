@@ -2,20 +2,16 @@ package dev.manuthlakdiw.primebasketbackend.controller;
 
 import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
 import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
+import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
 import dev.manuthlakdiw.primebasketbackend.service.AuthService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import dev.manuthlakdiw.primebasketbackend.service.PasskeyService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
+import java.util.Map;
 
 /**
  * @author manuthlakdiv
@@ -29,6 +25,7 @@ import java.security.Principal;
 public class AuthController {
 
     private final AuthService authService;
+    private final PasskeyService passkeyService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -73,4 +70,17 @@ public class AuthController {
     public LoginResponse facebookLogin(@RequestBody FacebookLoginRequest request) {
         return authService.facebookLogin(request);
     }
+
+
+    @PostMapping(value = "/passkeys/login-options", params = "email")
+    public Map<String, Object> getLoginOptions(@RequestParam String email) {
+        return passkeyService.generateLoginOptions(email);
+    }
+
+    @PostMapping("/passkeys/login-verify")
+    public LoginResponse verifyPasskeyLogin(@Valid @RequestBody PasskeyLoginRequest request) {
+        return passkeyService.verifyLoginAndGenerateToken(request);
+    }
+
+
 }

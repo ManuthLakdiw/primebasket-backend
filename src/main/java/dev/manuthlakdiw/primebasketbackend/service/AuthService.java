@@ -1,6 +1,7 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
 import dev.manuthlakdiw.primebasketbackend.dto.auth.*;
+import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
 
 /**
  * @author manuthlakdiv
