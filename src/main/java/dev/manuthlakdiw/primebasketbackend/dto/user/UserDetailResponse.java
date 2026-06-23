@@ -1,5 +1,6 @@
 package dev.manuthlakdiw.primebasketbackend.dto.user;
 
+import dev.manuthlakdiw.primebasketbackend.entity.types.Address;
 import lombok.Builder;
 
 import java.util.List;
@@ -19,7 +20,8 @@ public record UserDetailResponse(
         String role,
         String telephone,
         String authProvider,
-        List<PasskeyResponse> passkeys
+        List<PasskeyResponse> passkeys,
+        List<Address> addresses
 ) {
 
 }

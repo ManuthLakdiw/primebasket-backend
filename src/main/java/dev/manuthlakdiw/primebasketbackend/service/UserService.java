@@ -1,9 +1,11 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
+import dev.manuthlakdiw.primebasketbackend.dto.user.AddressRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePasswordRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePersonalInfoRequest;
+import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
 import dev.manuthlakdiw.primebasketbackend.projection.UserSummaryProjection;
 
 /**
@@ -22,5 +24,12 @@ public interface UserService {
     String updatePersonalInfo(String email, UpdatePersonalInfoRequest request);
 
     String updatePassword(String email, UpdatePasswordRequest request);
+
+    void addAddress(String email, AddressRequest request);
+
+    void updateAddress(String email, AddressRequest request);
+
+    void deleteAddress(String email, AddressType addressType);
+
 
 }

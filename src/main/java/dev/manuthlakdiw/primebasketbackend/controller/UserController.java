@@ -2,9 +2,11 @@ package dev.manuthlakdiw.primebasketbackend.controller;
 
 import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
 import dev.manuthlakdiw.primebasketbackend.dto.auth.PasskeyRegisterRequest;
+import dev.manuthlakdiw.primebasketbackend.dto.user.AddressRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePasswordRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePersonalInfoRequest;
+import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
 import dev.manuthlakdiw.primebasketbackend.service.PasskeyService;
 import dev.manuthlakdiw.primebasketbackend.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -67,6 +69,35 @@ public class UserController {
     public String deletePasskey(@PathVariable String id, Principal principal) {
         passkeyService.deletePasskey(principal.getName(), id);
         return "Passkey deleted successfully";
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @PostMapping("/addresses")
+    public String addAddress(
+            @Valid @RequestBody AddressRequest request,
+            Principal principal) {
+        userService.addAddress(principal.getName(), request);
+        return "Address added successfully";
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @PutMapping("/addresses")
+    public String updateAddress(
+            @Valid @RequestBody AddressRequest request,
+            Principal principal) {
+
+        userService.updateAddress(principal.getName(), request);
+        return "Address updated successfully";
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @DeleteMapping("/addresses/{addressType}")
+    public String deleteAddress(
+            @PathVariable AddressType addressType,
+            Principal principal) {
+
+        userService.deleteAddress(principal.getName(), addressType);
+        return "Address deleted successfully";
     }
 
 }

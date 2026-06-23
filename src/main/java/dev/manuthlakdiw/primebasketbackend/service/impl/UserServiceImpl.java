@@ -1,11 +1,10 @@
 package dev.manuthlakdiw.primebasketbackend.service.impl;
 
-import dev.manuthlakdiw.primebasketbackend.dto.user.PasskeyResponse;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePasswordRequest;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.user.*;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePersonalInfoRequest;
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
+import dev.manuthlakdiw.primebasketbackend.entity.types.Address;
+import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
 import dev.manuthlakdiw.primebasketbackend.projection.UserSummaryProjection;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.UserService;
@@ -16,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,6 +57,7 @@ public class UserServiceImpl implements UserService {
                 .telephone(user.getTelephone())
                 .authProvider(user.getAuthProvider().name())
                 .passkeys(passkeyResponses)
+                .addresses(user.getAddresses())
                 .build();
     }
 
@@ -106,5 +107,99 @@ public class UserServiceImpl implements UserService {
 
         return "Password updated successfully. Please login again and verify OTP.";
     }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "userProfiles", key = "#email")
+    public void addAddress(String email, AddressRequest request) {
+        UserEntity user = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Address> addresses = user.getAddresses();
+        if (addresses == null) {
+            addresses = new ArrayList<>();
+        }
+
+        boolean exists = addresses.stream()
+                .anyMatch(a -> a.getAddressType() == request.addressType());
+
+        if (exists) {
+            throw new RuntimeException("An address of type " + request.addressType() + " already exists. Please update it instead.");
+        }
+
+        if (addresses.size() >= 3) {
+            throw new RuntimeException("Maximum of 3 addresses allowed.");
+        }
+
+        addresses.add(Address.builder()
+                .addressType(request.addressType())
+                .street(request.street())
+                .city(request.city())
+                .district(request.district())
+                .postalCode(request.postalCode())
+                .build());
+
+        user.setAddresses(addresses);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "userProfiles", key = "#email")
+    public void updateAddress(String email, AddressRequest request) {
+        UserEntity user = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Address> addresses = user.getAddresses();
+        if (addresses == null || addresses.isEmpty()) {
+            throw new RuntimeException("No addresses found to update.");
+        }
+
+        boolean isUpdated = false;
+
+        for (int i = 0; i < addresses.size(); i++) {
+            if (addresses.get(i).getAddressType() == request.addressType()) {
+                addresses.set(i, Address.builder()
+                        .addressType(request.addressType())
+                        .street(request.street())
+                        .city(request.city())
+                        .district(request.district())
+                        .postalCode(request.postalCode())
+                        .build());
+                isUpdated = true;
+                break;
+            }
+        }
+
+        if (!isUpdated) {
+            throw new RuntimeException("Address of type " + request.addressType() + " not found to update.");
+        }
+
+        user.setAddresses(addresses);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "userProfiles", key = "#email")
+    public void deleteAddress(String email, AddressType addressType) {
+        UserEntity user = userRepository.findUserEntityByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Address> addresses = user.getAddresses();
+        if (addresses == null || addresses.isEmpty()) {
+            throw new RuntimeException("No addresses found to delete.");
+        }
+
+        boolean removed = addresses.removeIf(a -> a.getAddressType() == addressType);
+
+        if (!removed) {
+            throw new RuntimeException("Address of type " + addressType + " not found.");
+        }
+
+        user.setAddresses(addresses);
+        userRepository.save(user); 
+    }
+
 
 }
