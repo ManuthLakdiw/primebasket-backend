@@ -204,6 +204,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products", key = "'onsale_preview'", unless = "#result == null")
+    public List<ProductResponse> getTopOnSaleProducts(int limit) {
+        PageRequest pageRequest = PageRequest.of(0, limit);
+        Page<ProductEntity> productPage = productRepository.findTopOnSaleProducts(pageRequest);
+        return productPage.map(this::mapToResponse).getContent();
+    }
+
+    @Override
+    @Cacheable(
+            value = "products",
+            key = "'onsale_kw_' + (#keyword != null ? #keyword : '') + '_p_' + #page + '_s_' + #size",
+            unless = "#result == null"
+    )
+    public PageResponse<ProductResponse> getOnSaleProducts(String keyword, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<ProductEntity> productPage = productRepository.findOnSaleProductsWithKeyword(keyword, pageRequest);
+        return PageResponse.from(productPage.map(this::mapToResponse));
+    }
+
+    @Override
     @Cacheable(
             value = "products",
             key = "'featured_kw_' + (#keyword != null ? #keyword : '') + '_p_' + #page + '_s_' + #size",

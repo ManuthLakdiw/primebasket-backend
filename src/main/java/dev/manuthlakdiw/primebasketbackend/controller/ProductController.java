@@ -109,4 +109,17 @@ public class ProductController {
         return productService.getFeaturedProducts(keyword, page, size);
     }
 
+    @GetMapping("/public/onsale/preview")
+    public List<ProductResponse> getTopOnSaleProducts() {
+        return productService.getTopOnSaleProducts(4);
+    }
+
+    @GetMapping("/public/onsale")
+    public PageResponse<ProductResponse> getOnSaleProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return productService.getOnSaleProducts(keyword, page, size);
+    }
+
 }

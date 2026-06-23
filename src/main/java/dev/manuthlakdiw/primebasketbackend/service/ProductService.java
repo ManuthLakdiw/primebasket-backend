@@ -34,4 +34,8 @@ public interface ProductService {
 
     List<ProductResponse> getTopFeaturedProducts(int limit);
 
+    List<ProductResponse> getTopOnSaleProducts(int limit);
+
+    PageResponse<ProductResponse> getOnSaleProducts(String keyword, int page, int size);
+
 }

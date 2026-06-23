@@ -42,4 +42,21 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
             Pageable pageable);
 
 
+    @Query("SELECT p FROM ProductEntity p WHERE p.salePrice IS NOT NULL AND p.salePrice > 0 AND p.salePrice < p.price " +
+            "AND (p.saleStartDate IS NULL OR p.saleStartDate <= CURRENT_TIMESTAMP) " +
+            "AND (p.saleEndDate IS NULL OR p.saleEndDate >= CURRENT_TIMESTAMP) " +
+            "AND p.isDeleted = false ORDER BY p.id DESC")
+    Page<ProductEntity> findTopOnSaleProducts(Pageable pageable);
+
+    @Query("SELECT p FROM ProductEntity p WHERE p.salePrice IS NOT NULL AND p.salePrice > 0 AND p.salePrice < p.price " +
+            "AND (p.saleStartDate IS NULL OR p.saleStartDate <= CURRENT_TIMESTAMP) " +
+            "AND (p.saleEndDate IS NULL OR p.saleEndDate >= CURRENT_TIMESTAMP) " +
+            "AND p.isDeleted = false AND " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<ProductEntity> findOnSaleProductsWithKeyword(
+            @Param("keyword") String keyword,
+            Pageable pageable);
+
 }
