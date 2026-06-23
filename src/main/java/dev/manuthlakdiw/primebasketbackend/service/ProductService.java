@@ -38,4 +38,6 @@ public interface ProductService {
 
     PageResponse<ProductResponse> getOnSaleProducts(String keyword, int page, int size);
 
+    PageResponse<ProductResponse> searchAllProducts(String keyword, int page, int size);
+
 }

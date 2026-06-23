@@ -122,4 +122,14 @@ public class ProductController {
         return productService.getOnSaleProducts(keyword, page, size);
     }
 
+    @GetMapping("/public/search")
+    public PageResponse<ProductResponse> searchProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return productService.searchAllProducts(keyword, page, size);
+    }
+
+    
+
 }
