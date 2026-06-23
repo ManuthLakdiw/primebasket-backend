@@ -14,9 +14,12 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author manuthlakdiv
@@ -177,7 +180,7 @@ public class ProductServiceImpl implements ProductService {
 
         existingProduct.setFeatured(isFeatured);
     }
-    
+
     @Override
     @Cacheable(
             value = "products",
@@ -189,6 +192,26 @@ public class ProductServiceImpl implements ProductService {
 
         Page<ProductEntity> productPage = productRepository.findProductsByCategoryAndKeyword(categoryId, keyword, pageRequest);
 
+        return PageResponse.from(productPage.map(this::mapToResponse));
+    }
+
+    @Override
+    @Cacheable(value = "products", key = "'featured_preview'", unless = "#result == null")
+    public List<ProductResponse> getTopFeaturedProducts(int limit) {
+        PageRequest pageRequest = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "id"));
+        Page<ProductEntity> productPage = productRepository.findFeaturedProducts(pageRequest);
+        return productPage.map(this::mapToResponse).getContent();
+    }
+
+    @Override
+    @Cacheable(
+            value = "products",
+            key = "'featured_kw_' + (#keyword != null ? #keyword : '') + '_p_' + #page + '_s_' + #size",
+            unless = "#result == null"
+    )
+    public PageResponse<ProductResponse> getFeaturedProducts(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Page<ProductEntity> productPage = productRepository.findFeaturedProductsWithKeyword(keyword, pageable);
         return PageResponse.from(productPage.map(this::mapToResponse));
     }
 

@@ -4,6 +4,8 @@ import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.product.ProductRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.product.ProductResponse;
 
+import java.util.List;
+
 /**
  * @author manuthlakdiv
  * @email manuthlakdiv2006.com
@@ -27,5 +29,9 @@ public interface ProductService {
     void setProductAsFeatured(Long id, boolean isFeatured);
 
     PageResponse<ProductResponse> getProductsByCategory(Long categoryId, String keyword, int page, int size);
+
+    PageResponse<ProductResponse> getFeaturedProducts(String keyword, int page, int size);
+
+    List<ProductResponse> getTopFeaturedProducts(int limit);
 
 }

@@ -30,5 +30,16 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
             Pageable pageable);
 
 
+    @Query("SELECT p FROM ProductEntity p WHERE p.isFeatured = true AND p.isDeleted = false AND p.stockQuantity > 0 ORDER BY p.id DESC")
+    Page<ProductEntity> findFeaturedProducts(Pageable pageable);
+
+    @Query("SELECT p FROM ProductEntity p WHERE p.isFeatured = true AND p.isDeleted = false AND p.stockQuantity > 0 AND " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<ProductEntity> findFeaturedProductsWithKeyword(
+            @Param("keyword") String keyword,
+            Pageable pageable);
+
 
 }

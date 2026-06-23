@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author manuthlakdiv
  * @email manuthlakdiv2006.com
@@ -93,5 +95,18 @@ public class ProductController {
         return productService.getProductsByCategory(categoryId, keyword, page, size);
     }
 
+
+    @GetMapping("/public/featured/preview")
+    public List<ProductResponse> getTopFeaturedProducts() {
+        return productService.getTopFeaturedProducts(4);
+    }
+
+    @GetMapping("/public/featured")
+    public PageResponse<ProductResponse> getFeaturedProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return productService.getFeaturedProducts(keyword, page, size);
+    }
 
 }
