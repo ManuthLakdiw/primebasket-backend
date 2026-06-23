@@ -65,7 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, API_PREFIX + "/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, API_PREFIX + "/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, API_PREFIX + "/categories/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

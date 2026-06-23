@@ -1,11 +1,13 @@
 package dev.manuthlakdiw.primebasketbackend.service.impl;
 
+import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryDropdownResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryPublicResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
 import dev.manuthlakdiw.primebasketbackend.entity.CategoryEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.ProductEntity;
-import dev.manuthlakdiw.primebasketbackend.projection.CategoryDropdownProjection;
+import dev.manuthlakdiw.primebasketbackend.projection.PublicCategoryProjection;
 import dev.manuthlakdiw.primebasketbackend.repository.CategoryRepository;
 import dev.manuthlakdiw.primebasketbackend.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -128,8 +130,24 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDropdownProjection> getCategoriesForDropdown() {
-        return categoryRepository.findAllByOrderByNameAsc();
+    @Cacheable(value = "categories", key = "'dropdown-list'", unless = "#result == null or #result.isEmpty()")
+    public List<CategoryDropdownResponse> getCategoriesForDropdown() {
+        return categoryRepository.findAllForDropdown();
+    }
+
+    @Override
+    @Cacheable(value = "categories", key = "'public-list'", unless = "#result == null or #result.isEmpty()")
+    public List<CategoryPublicResponse> getPublicCategories() {
+        List<PublicCategoryProjection> projections = categoryRepository.findAllPublicCategoriesWithProductCount();
+
+        return projections.stream()
+                .map(proj -> new CategoryPublicResponse(
+                        proj.getId(),
+                        proj.getName(),
+                        proj.getDescription(),
+                        proj.getProductCount() != null ? proj.getProductCount() : 0L
+                ))
+                .toList();
     }
 
     private CategoryResponse mapToResponse(CategoryEntity entity) {

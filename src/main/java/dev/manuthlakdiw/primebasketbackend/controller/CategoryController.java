@@ -1,10 +1,11 @@
 package dev.manuthlakdiw.primebasketbackend.controller;
 
 import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
+import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryDropdownResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryPublicResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
-import dev.manuthlakdiw.primebasketbackend.projection.CategoryDropdownProjection;
 import dev.manuthlakdiw.primebasketbackend.service.CategoryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -57,6 +58,8 @@ public class CategoryController {
         return categoryService.getCategoryById(id);
     }
 
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public PageResponse<CategoryResponse> getAllCategories(
             @RequestParam(defaultValue = "0") int page,
@@ -67,7 +70,12 @@ public class CategoryController {
     @SecurityRequirement(name = "BearerAuth")
     @GetMapping("/dropdown")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<CategoryDropdownProjection> getCategoriesForDropdown() {
+    public List<CategoryDropdownResponse> getCategoriesForDropdown() {
         return categoryService.getCategoriesForDropdown();
+    }
+
+    @GetMapping("/public")
+    public List<CategoryPublicResponse> getPublicCategories(){
+        return categoryService.getPublicCategories();
     }
 }

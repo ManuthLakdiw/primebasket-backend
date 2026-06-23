@@ -6,7 +6,12 @@ package dev.manuthlakdiw.primebasketbackend.projection;
  * @project primebasket-backend
  * @github https://github.com/ManuthLakdiw
  */
-public interface CategoryDropdownProjection {
+public interface PublicCategoryProjection {
     Long getId();
+
     String getName();
+
+    String getDescription();
+
+    Long getProductCount();
 }

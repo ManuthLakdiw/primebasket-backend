@@ -1,9 +1,10 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
+import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryDropdownResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryPublicResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryRequest;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
-import dev.manuthlakdiw.primebasketbackend.projection.CategoryDropdownProjection;
 
 import java.util.List;
 
@@ -24,5 +25,7 @@ public interface CategoryService {
 
     PageResponse<CategoryResponse> getAllCategories(int page, int size);
 
-    List<CategoryDropdownProjection> getCategoriesForDropdown();
+    List<CategoryDropdownResponse> getCategoriesForDropdown();
+
+    List<CategoryPublicResponse> getPublicCategories();
 }
