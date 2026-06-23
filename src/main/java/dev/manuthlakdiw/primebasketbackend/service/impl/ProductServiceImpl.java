@@ -18,8 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-
 /**
  * @author manuthlakdiv
  * @email manuthlakdiv2006.com
@@ -178,6 +176,20 @@ public class ProductServiceImpl implements ProductService {
         }
 
         existingProduct.setFeatured(isFeatured);
+    }
+    
+    @Override
+    @Cacheable(
+            value = "products",
+            key = "'cat_' + #categoryId + '_kw_' + (#keyword != null ? #keyword : '') + '_p_' + #page + '_s_' + #size",
+            unless = "#result == null"
+    )
+    public PageResponse<ProductResponse> getProductsByCategory(Long categoryId, String keyword, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+
+        Page<ProductEntity> productPage = productRepository.findProductsByCategoryAndKeyword(categoryId, keyword, pageRequest);
+
+        return PageResponse.from(productPage.map(this::mapToResponse));
     }
 
 

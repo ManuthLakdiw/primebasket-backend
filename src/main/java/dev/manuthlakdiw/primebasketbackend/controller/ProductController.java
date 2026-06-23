@@ -56,7 +56,7 @@ public class ProductController {
         return productService.deleteProduct(id);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/public/{id}")
     public ProductResponse getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
@@ -83,6 +83,15 @@ public class ProductController {
         productService.setProductAsFeatured(id, status);
     }
 
+    @GetMapping("/public/category/{categoryId}")
+    public PageResponse<ProductResponse> getProductsByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return productService.getProductsByCategory(categoryId, keyword, page, size);
+    }
 
 
 }

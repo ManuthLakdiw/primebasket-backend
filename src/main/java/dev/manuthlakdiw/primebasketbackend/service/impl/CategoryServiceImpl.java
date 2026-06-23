@@ -7,7 +7,6 @@ import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
 import dev.manuthlakdiw.primebasketbackend.entity.CategoryEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.ProductEntity;
-import dev.manuthlakdiw.primebasketbackend.projection.PublicCategoryProjection;
 import dev.manuthlakdiw.primebasketbackend.repository.CategoryRepository;
 import dev.manuthlakdiw.primebasketbackend.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -138,16 +137,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Cacheable(value = "categories", key = "'public-list'", unless = "#result == null or #result.isEmpty()")
     public List<CategoryPublicResponse> getPublicCategories() {
-        List<PublicCategoryProjection> projections = categoryRepository.findAllPublicCategoriesWithProductCount();
-
-        return projections.stream()
-                .map(proj -> new CategoryPublicResponse(
-                        proj.getId(),
-                        proj.getName(),
-                        proj.getDescription(),
-                        proj.getProductCount() != null ? proj.getProductCount() : 0L
-                ))
-                .toList();
+        return categoryRepository.findAllPublicCategoriesWithProductCount();
     }
 
     private CategoryResponse mapToResponse(CategoryEntity entity) {

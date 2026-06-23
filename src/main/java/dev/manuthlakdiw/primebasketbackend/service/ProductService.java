@@ -26,5 +26,6 @@ public interface ProductService {
 
     void setProductAsFeatured(Long id, boolean isFeatured);
 
+    PageResponse<ProductResponse> getProductsByCategory(Long categoryId, String keyword, int page, int size);
 
 }

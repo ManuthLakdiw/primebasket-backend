@@ -1,9 +1,9 @@
 package dev.manuthlakdiw.primebasketbackend.repository;
 
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryDropdownResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryPublicResponse;
 import dev.manuthlakdiw.primebasketbackend.dto.category.CategoryResponse;
 import dev.manuthlakdiw.primebasketbackend.entity.CategoryEntity;
-import dev.manuthlakdiw.primebasketbackend.projection.PublicCategoryProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,11 +38,11 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
             "FROM CategoryEntity c ORDER BY c.name ASC")
     List<CategoryDropdownResponse> findAllForDropdown();
 
-    @Query("SELECT c.id AS id, c.name AS name, c.description AS description, COUNT(p.id) AS productCount " +
+    @Query("SELECT new dev.manuthlakdiw.primebasketbackend.dto.category.CategoryPublicResponse(" +
+            "c.id, c.name, c.description, COUNT(p.id)) " +
             "FROM CategoryEntity c LEFT JOIN c.products p ON p.isDeleted = false AND p.isActive = true " +
             "GROUP BY c.id, c.name, c.description " +
             "ORDER BY c.name ASC")
-    List<PublicCategoryProjection> findAllPublicCategoriesWithProductCount();
-
+    List<CategoryPublicResponse> findAllPublicCategoriesWithProductCount();
 
 }
