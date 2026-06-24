@@ -1,5 +1,6 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
+import dev.manuthlakdiw.primebasketbackend.entity.OrderEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
 
 /**
@@ -13,4 +14,6 @@ public interface EmailService {
     void sendRegistrationOtp(UserEntity userEntity, String otp);
 
     void sendAccountLockedAlert(UserEntity userEntity);
+
+    void sendOrderConfirmation(UserEntity user, OrderEntity order);
 }
