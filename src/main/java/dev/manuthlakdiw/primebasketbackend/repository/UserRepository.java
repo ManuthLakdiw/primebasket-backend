@@ -21,9 +21,9 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     @Query("SELECT u.password AS password, u.email AS email, u.role AS role, u.isActivated AS activated FROM UserEntity u WHERE u.email = :email")
     Optional<UserSecurityProjection> findSecuredUserByEmail(String email);
 
-    boolean existsByEmail(String email);
-
     Optional<UserEntity> findUserEntityByEmail(String email);
 
     boolean existsByTelephone(String telephone);
+
+    Optional<UserEntity> findByEmail(String email);
 }
