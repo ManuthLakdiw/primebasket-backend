@@ -26,8 +26,6 @@ public class OrderController {
     public String createOrder(
             Principal principal,
             @Valid @RequestBody CreateOrderRequest request) {
-            String orderNumber = orderService.createOrder(principal.getName(), request);
-            return orderNumber + "Order placed successfully";
-
+            return orderService.createOrder(principal.getName(), request);
     }
 }
