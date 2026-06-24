@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, API_PREFIX + "/products/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, API_PREFIX + "/categories/public/**").permitAll()
+                        .requestMatchers(API_PREFIX + "/payments/notify").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

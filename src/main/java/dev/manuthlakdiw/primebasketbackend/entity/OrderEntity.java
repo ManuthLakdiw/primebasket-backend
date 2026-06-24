@@ -2,6 +2,7 @@ package dev.manuthlakdiw.primebasketbackend.entity;
 
 import dev.manuthlakdiw.primebasketbackend.entity.types.Address;
 import dev.manuthlakdiw.primebasketbackend.entity.types.OrderStatusType;
+import dev.manuthlakdiw.primebasketbackend.entity.types.PaymentStatusType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -45,6 +46,12 @@ public class OrderEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatusType status = OrderStatusType.PENDING;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentStatusType paymentStatus = PaymentStatusType.PENDING;
+
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)

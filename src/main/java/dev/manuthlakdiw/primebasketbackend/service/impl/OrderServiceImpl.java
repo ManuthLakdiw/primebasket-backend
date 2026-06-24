@@ -3,6 +3,7 @@ package dev.manuthlakdiw.primebasketbackend.service.impl;
 import dev.manuthlakdiw.primebasketbackend.dto.order.CreateOrderRequest;
 import dev.manuthlakdiw.primebasketbackend.entity.*;
 import dev.manuthlakdiw.primebasketbackend.entity.types.OrderStatusType;
+import dev.manuthlakdiw.primebasketbackend.entity.types.PaymentStatusType;
 import dev.manuthlakdiw.primebasketbackend.repository.*;
 import dev.manuthlakdiw.primebasketbackend.service.CartService;
 import dev.manuthlakdiw.primebasketbackend.service.EmailService;
@@ -67,6 +68,7 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .shippingAddress(request.shippingAddress())
                 .status(OrderStatusType.PENDING)
+                .paymentStatus(PaymentStatusType.PENDING)
                 .itemsTotal(itemsTotal)
                 .deliveryFee(deliveryFee)
                 .finalTotal(deliveryFee)
@@ -105,14 +107,6 @@ public class OrderServiceImpl implements OrderService {
         savedOrder.setOrderItems(orderItemsToSave);
         orderRepository.save(savedOrder);
 
-        cart.getItems().removeAll(selectedCartItems);
-        BigDecimal newCartTotal = cart.getItems().stream()
-                .map(item -> item.getProduct().getSellingPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        cart.setTotalPrice(newCartTotal);
-        cartRepository.save(cart);
-
-        emailService.sendOrderConfirmation(user, savedOrder);
 
         return orderNumber;
     }

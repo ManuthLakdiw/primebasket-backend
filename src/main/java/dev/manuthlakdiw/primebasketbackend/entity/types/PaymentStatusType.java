@@ -6,6 +6,9 @@ package dev.manuthlakdiw.primebasketbackend.entity.types;
  * @project primebasket-backend
  * @github https://github.com/ManuthLakdiw
  */
-public enum OrderStatusType {
-    PENDING, PROCESSING, PROCEED, SHIPPED, DELIVERED, CANCELLED
+public enum PaymentStatusType {
+    PENDING,
+    PAID,
+    FAILED,
+    REFUNDED  
 }
