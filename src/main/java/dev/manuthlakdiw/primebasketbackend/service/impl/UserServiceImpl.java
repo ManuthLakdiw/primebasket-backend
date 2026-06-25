@@ -2,22 +2,30 @@ package dev.manuthlakdiw.primebasketbackend.service.impl;
 
 import dev.manuthlakdiw.primebasketbackend.dto.user.*;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
+import dev.manuthlakdiw.primebasketbackend.entity.OrderEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.types.Address;
 import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
+import dev.manuthlakdiw.primebasketbackend.entity.types.RoleType;
 import dev.manuthlakdiw.primebasketbackend.projection.UserSummaryProjection;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author manuthlakdiv
@@ -62,13 +70,70 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResponse<UserSummaryProjection> getAllCustomerAccounts(int page, int size) {
-        return null;
+    @Cacheable(value = "allUsers", key = "#page + '_' + #size")
+    public PageResponse<UserAdminResponse> getAllCustomerAccounts(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<UserEntity> userPage = userRepository.findAllByRole(RoleType.USER, pageable);
+
+        Page<UserAdminResponse> responsePage = userPage.map(user -> new UserAdminResponse(
+                user.getId().toString(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getTelephone(),
+                user.isActivated(),
+                getInitials(user.getFirstName(), user.getLastName()))
+        );
+
+        return PageResponse.from(responsePage);
+    }
+
+    @Override
+    @CacheEvict(value = {"userProfiles", "allUsers", "userFullDetails"}, allEntries = true)
+    public String toggleUserActivation(UUID userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setActivated(!user.isActivated());
+        userRepository.save(user);
+
+        return user.getEmail();
+    }
+
+    @Override
+    @Cacheable(value = "userFullDetails", key = "#userId")
+    public UserFullDetailResponse getUserFullDetails(UUID userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        long totalOrders = user.getOrders().size();
+        double totalSpent = user.getOrders().stream()
+                .map(OrderEntity::getFinalTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .doubleValue();
+
+        return new UserFullDetailResponse(
+                user.getId().toString(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getTelephone(),
+                user.isActivated(),
+                user.getRole().name(),
+                user.getAuthProvider().name(),
+                user.getLastLogin() != null ? user.getLastLogin().toString() : "Never Logged In",
+                getInitials(user.getFirstName(), user.getLastName()),
+                user.getAddresses(),
+                totalOrders,
+                totalSpent
+        );
     }
 
     @Transactional
     @Override
-    @CacheEvict(value = "userProfiles", key = "#email")
+    @CacheEvict(value = {"userProfiles", "allUsers", "userFullDetails"}, allEntries = true)
     public String updatePersonalInfo(String email, UpdatePersonalInfoRequest request) {
         UserEntity userEntity = userRepository.findUserEntityByEmail(email).orElseThrow(
                 () -> new RuntimeException("User not found")
@@ -110,7 +175,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "userProfiles", key = "#email")
+    @CacheEvict(value = {"userProfiles", "allUsers", "userFullDetails"}, allEntries = true)
     public void addAddress(String email, AddressRequest request) {
         UserEntity user = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -145,7 +210,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "userProfiles", key = "#email")
+    @CacheEvict(value = {"userProfiles", "allUsers", "userFullDetails"}, allEntries = true)
     public void updateAddress(String email, AddressRequest request) {
         UserEntity user = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -181,7 +246,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "userProfiles", key = "#email")
+    @CacheEvict(value = {"userProfiles", "allUsers", "userFullDetails"}, allEntries = true)
     public void deleteAddress(String email, AddressType addressType) {
         UserEntity user = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -199,6 +264,17 @@ public class UserServiceImpl implements UserService {
 
         user.setAddresses(addresses);
         userRepository.save(user); 
+    }
+
+    private String getInitials(String firstName, String lastName) {
+        String init = "";
+        if (firstName != null && !firstName.isEmpty()) {
+            init += firstName.charAt(0);
+        }
+        if (lastName != null && !lastName.isEmpty()) {
+            init += lastName.charAt(0);
+        }
+        return init.toUpperCase();
     }
 
 

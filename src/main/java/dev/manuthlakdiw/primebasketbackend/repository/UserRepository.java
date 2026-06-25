@@ -1,7 +1,10 @@
 package dev.manuthlakdiw.primebasketbackend.repository;
 
 import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
+import dev.manuthlakdiw.primebasketbackend.entity.types.RoleType;
 import dev.manuthlakdiw.primebasketbackend.projection.UserSecurityProjection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -26,4 +29,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     boolean existsByTelephone(String telephone);
 
     Optional<UserEntity> findByEmail(String email);
+
+    Page<UserEntity> findAllByRole(RoleType role, Pageable pageable);
 }

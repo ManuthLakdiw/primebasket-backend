@@ -1,12 +1,11 @@
 package dev.manuthlakdiw.primebasketbackend.service;
 
-import dev.manuthlakdiw.primebasketbackend.dto.user.AddressRequest;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePasswordRequest;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.user.*;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePersonalInfoRequest;
 import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
 import dev.manuthlakdiw.primebasketbackend.projection.UserSummaryProjection;
+
+import java.util.UUID;
 
 /**
  * @author manuthlakdiv
@@ -19,8 +18,6 @@ public interface UserService {
 
     UserDetailResponse getMyProfile(String email);
 
-    PageResponse<UserSummaryProjection> getAllCustomerAccounts(int page, int size);
-
     String updatePersonalInfo(String email, UpdatePersonalInfoRequest request);
 
     String updatePassword(String email, UpdatePasswordRequest request);
@@ -30,6 +27,12 @@ public interface UserService {
     void updateAddress(String email, AddressRequest request);
 
     void deleteAddress(String email, AddressType addressType);
+
+    PageResponse<UserAdminResponse> getAllCustomerAccounts(int page, int size);
+
+    String toggleUserActivation(UUID userId);
+
+    UserFullDetailResponse getUserFullDetails(UUID userId);
 
 
 }

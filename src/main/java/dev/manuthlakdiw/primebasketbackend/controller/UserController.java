@@ -2,20 +2,20 @@ package dev.manuthlakdiw.primebasketbackend.controller;
 
 import dev.manuthlakdiw.primebasketbackend.annotation.ApiController;
 import dev.manuthlakdiw.primebasketbackend.dto.auth.PasskeyRegisterRequest;
-import dev.manuthlakdiw.primebasketbackend.dto.user.AddressRequest;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePasswordRequest;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UserDetailResponse;
-import dev.manuthlakdiw.primebasketbackend.dto.user.UpdatePersonalInfoRequest;
+import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
+import dev.manuthlakdiw.primebasketbackend.dto.user.*;
 import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
 import dev.manuthlakdiw.primebasketbackend.service.PasskeyService;
 import dev.manuthlakdiw.primebasketbackend.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author manuthlakdiv
@@ -99,5 +99,32 @@ public class UserController {
         userService.deleteAddress(principal.getName(), addressType);
         return "Address deleted successfully";
     }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping()
+    public PageResponse<UserAdminResponse> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return userService.getAllCustomerAccounts(page, size);
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{userId}")
+    public UserFullDetailResponse getUserDetails(@PathVariable UUID userId) {
+        return userService.getUserFullDetails(userId);
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{userId}/toggle-status")
+    public String toggleUserStatus(@PathVariable UUID userId) {
+        userService.toggleUserActivation(userId);
+        return "User status updated successfully";
+    }
+
+
 
 }
