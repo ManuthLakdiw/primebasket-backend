@@ -121,8 +121,8 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{userId}/toggle-status")
     public String toggleUserStatus(@PathVariable UUID userId) {
-        userService.toggleUserActivation(userId);
-        return "User status updated successfully";
+        return userService.toggleUserActivation(userId);
+
     }
 
 

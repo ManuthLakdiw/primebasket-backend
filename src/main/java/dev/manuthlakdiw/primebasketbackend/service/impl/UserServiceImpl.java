@@ -7,7 +7,6 @@ import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.types.Address;
 import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
 import dev.manuthlakdiw.primebasketbackend.entity.types.RoleType;
-import dev.manuthlakdiw.primebasketbackend.projection.UserSummaryProjection;
 import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
