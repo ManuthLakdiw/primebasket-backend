@@ -188,7 +188,7 @@ public class ProductServiceImpl implements ProductService {
             unless = "#result == null"
     )
     public PageResponse<ProductResponse> getProductsByCategory(Long categoryId, String keyword, int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = PageRequest.of(page, size);
 
         Page<ProductEntity> productPage = productRepository.findProductsByCategoryAndKeyword(categoryId, keyword, pageRequest);
 
@@ -218,7 +218,7 @@ public class ProductServiceImpl implements ProductService {
             unless = "#result == null"
     )
     public PageResponse<ProductResponse> getOnSaleProducts(String keyword, int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = PageRequest.of(page, size);
         Page<ProductEntity> productPage = productRepository.findOnSaleProductsWithKeyword(keyword, pageRequest);
         return PageResponse.from(productPage.map(this::mapToResponse));
     }
@@ -230,7 +230,7 @@ public class ProductServiceImpl implements ProductService {
             unless = "#result == null"
     )
     public PageResponse<ProductResponse> searchAllProducts(String keyword, int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = PageRequest.of(page, size);
         Page<ProductEntity> productPage = productRepository.searchAllActiveProducts(keyword, pageRequest);
         return PageResponse.from(productPage.map(this::mapToResponse));
     }
@@ -242,7 +242,7 @@ public class ProductServiceImpl implements ProductService {
             unless = "#result == null"
     )
     public PageResponse<ProductResponse> getFeaturedProducts(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = PageRequest.of(page, size);
         Page<ProductEntity> productPage = productRepository.findFeaturedProductsWithKeyword(keyword, pageable);
         return PageResponse.from(productPage.map(this::mapToResponse));
     }
