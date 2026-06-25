@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    @CacheEvict(value = "products", allEntries = true)
+    @CacheEvict(value = {"products", "categories"}, allEntries = true)
     public ProductResponse createProduct(ProductRequest request) {
 
         if (productRepository.existsBySkuAndIsDeletedFalse(request.sku())) {
@@ -84,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     @CachePut(value = "product", key = "#id")
-    @CacheEvict(value = "products", allEntries = true)
+    @CacheEvict(value = {"products", "orderDetails", "categories"}, allEntries = true)
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
@@ -124,7 +124,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    @CacheEvict(value = {"product", "products"}, allEntries = true)
+    @CacheEvict(value = {"product", "products", "orderDetails", "categories"}, allEntries = true)
     public String deleteProduct(Long id) {
         ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
@@ -155,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    @CacheEvict(value = {"product", "products"}, allEntries = true)
+    @CacheEvict(value = {"product", "products", "categories"}, allEntries = true)
     public void updateProductActiveStatus(Long id, boolean isActive) {
         ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
@@ -169,7 +169,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    @CacheEvict(value = {"product", "products"}, allEntries = true)
+    @CacheEvict(value = {"product", "products", "categories"}, allEntries = true)
     public void setProductAsFeatured(Long id, boolean isFeatured) {
         ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
