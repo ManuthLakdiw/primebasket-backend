@@ -12,4 +12,6 @@ import dev.manuthlakdiw.primebasketbackend.entity.UserEntity;
 public interface OrderService {
 
     String createOrder(String email, CreateOrderRequest request);
+
+    void cancelAbandonedOrders();
 }

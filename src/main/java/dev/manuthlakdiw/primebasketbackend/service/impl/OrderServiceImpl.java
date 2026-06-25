@@ -10,11 +10,15 @@ import dev.manuthlakdiw.primebasketbackend.service.EmailService;
 import dev.manuthlakdiw.primebasketbackend.service.OrderService;
 import dev.manuthlakdiw.primebasketbackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +32,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -109,5 +114,38 @@ public class OrderServiceImpl implements OrderService {
 
 
         return orderNumber;
+    }
+
+    @Override
+    @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Colombo")
+    @Transactional
+    @Async
+    public void cancelAbandonedOrders() {
+        LocalDateTime fifteenMinsAgo = LocalDateTime.now().minusMinutes(15);
+
+        List<OrderEntity> abandonedOrders = orderRepository.findByStatusAndPaymentStatusAndCreatedAtBefore(
+                OrderStatusType.PENDING,
+                PaymentStatusType.PENDING,
+                fifteenMinsAgo
+        );
+
+        if (!abandonedOrders.isEmpty()) {
+            log.info("Found {} abandoned orders. Rolling back stock...", abandonedOrders.size());
+
+            for (OrderEntity order : abandonedOrders) {
+
+                order.getOrderItems().forEach(orderItem -> {
+                    ProductEntity product = orderItem.getProduct();
+                    product.setStockQuantity(product.getStockQuantity() + orderItem.getQuantity());
+                    productRepository.save(product);
+                });
+
+                order.setStatus(OrderStatusType.CANCELLED);
+                order.setPaymentStatus(PaymentStatusType.FAILED);
+
+                orderRepository.save(order);
+                log.info("Order {} has been CANCELLED and stock restored.", order.getOrderNumber());
+            }
+        }
     }
 }

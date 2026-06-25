@@ -1,9 +1,13 @@
 package dev.manuthlakdiw.primebasketbackend.repository;
 
 import dev.manuthlakdiw.primebasketbackend.entity.OrderEntity;
+import dev.manuthlakdiw.primebasketbackend.entity.types.OrderStatusType;
+import dev.manuthlakdiw.primebasketbackend.entity.types.PaymentStatusType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +22,11 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
 
     Optional<OrderEntity> findOrderEntitiesByOrderNumber(String orderNumber);
+
+    List<OrderEntity> findByStatusAndPaymentStatusAndCreatedAtBefore(
+            OrderStatusType status,
+            PaymentStatusType paymentStatus,
+            LocalDateTime timeLimit
+    );
+
 }
