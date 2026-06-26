@@ -58,6 +58,22 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(user, subject, htmlContent);
     }
 
+    @Async
+    @Override
+    public void sendOrderCancellationAlert(UserEntity user, OrderEntity order, String reason) {
+        String subject = "Order Cancelled - " + order.getOrderNumber() + " ❌";
+        String htmlContent = buildOrderCancelledTemplate(user, order, reason);
+        sendHtmlEmail(user, subject, htmlContent);
+    }
+
+    @Async
+    @Override
+    public void sendOrderDeliveredAlert(UserEntity user, OrderEntity order) {
+        String subject = "Your Order has been Delivered! 📦✨ - " + order.getOrderNumber();
+        String htmlContent = buildOrderDeliveredTemplate(user, order);
+        sendHtmlEmail(user, subject, htmlContent);
+    }
+
     private void sendHtmlEmail(UserEntity userEntity, String subject, String htmlContent) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -75,6 +91,82 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to send email to: " + userEntity.getEmail(), e);
         }
+    }
+
+    private String buildOrderDeliveredTemplate(UserEntity user, OrderEntity order) {
+        return """
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; padding: 40px 20px;">
+                    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                        <div style="background-color: #4CAF50; padding: 25px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Order Delivered! 📦</h1>
+                        </div>
+                        <div style="padding: 30px;">
+                            <p style="color: #555555; font-size: 16px;">Hi <strong>%s</strong>,</p>
+                            <p style="color: #555555; font-size: 16px;">Great news! Your order <strong>%s</strong> has been successfully delivered to your shipping address.</p>
+                            
+                            <div style="margin: 25px 0; background-color: #f0fdf4; border-left: 4px solid #4CAF50; padding: 15px;">
+                                <h4 style="color: #2e7d32; margin-top: 0; margin-bottom: 5px; font-size: 14px; text-transform: uppercase;">Delivery Status:</h4>
+                                <p style="color: #333333; margin: 0; font-weight: 500;">Successfully Delivered ✅</p>
+                            </div>
+                            
+                            <p style="color: #555555; font-size: 15px; line-height: 1.6;">
+                                We hope you love your purchase! If you have any issues with your items or if you haven't received the package despite this email, please contact our support team immediately.
+                            </p>
+                            
+                            <div style="text-align: center; margin-top: 30px;">
+                                <p style="color: #F57224; font-size: 16px; font-weight: bold;">Thank you for shopping with PrimeBasket! 🛒</p>
+                            </div>
+                            
+                            <p style="color: #777777; font-size: 14px; line-height: 1.5; border-top: 1px solid #eeeeee; padding-top: 20px; margin-top: 30px;">
+                                If you have any questions, please contact our customer support.
+                            </p>
+                        </div>
+                        <div style="background-color: #f1f1f1; padding: 15px; text-align: center;">
+                            <p style="color: #999999; font-size: 12px; margin: 0;">&copy; 2026 PrimeBasket. All rights reserved.</p>
+                        </div>
+                    </div>
+                </div>
+                """.formatted(
+                user.getFirstName(),
+                order.getOrderNumber()
+        );
+    }
+
+    private String buildOrderCancelledTemplate(UserEntity user, OrderEntity order, String reason) {
+        return """
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; padding: 40px 20px;">
+                    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                        <div style="background-color: #D32F2F; padding: 25px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Order Cancelled</h1>
+                        </div>
+                        <div style="padding: 30px;">
+                            <p style="color: #555555; font-size: 16px;">Hi <strong>%s</strong>,</p>
+                            <p style="color: #555555; font-size: 16px;">We are writing to inform you that your order <strong>%s</strong> has been cancelled.</p>
+                            
+                            <div style="margin: 25px 0; background-color: #ffebee; border-left: 4px solid #D32F2F; padding: 15px;">
+                                <h4 style="color: #D32F2F; margin-top: 0; margin-bottom: 5px; font-size: 14px; text-transform: uppercase;">Reason for Cancellation:</h4>
+                                <p style="color: #333333; margin: 0; font-weight: 500;">%s</p>
+                            </div>
+                            
+                            <p style="color: #555555; font-size: 15px; line-height: 1.6;">
+                                If you have already made a payment, the refund process will be initiated shortly according to our refund policy. 
+                                We apologize for any inconvenience caused.
+                            </p>
+                            
+                            <p style="color: #777777; font-size: 14px; line-height: 1.5; border-top: 1px solid #eeeeee; padding-top: 20px; margin-top: 30px;">
+                                If you have any questions, please contact our support team.
+                            </p>
+                        </div>
+                        <div style="background-color: #f1f1f1; padding: 15px; text-align: center;">
+                            <p style="color: #999999; font-size: 12px; margin: 0;">&copy; 2026 PrimeBasket. All rights reserved.</p>
+                        </div>
+                    </div>
+                </div>
+                """.formatted(
+                user.getFirstName(),
+                order.getOrderNumber(),
+                reason != null && !reason.trim().isEmpty() ? reason : "Administrative cancellation."
+        );
     }
 
     private String buildOrderConfirmationTemplate(UserEntity user, OrderEntity order) {

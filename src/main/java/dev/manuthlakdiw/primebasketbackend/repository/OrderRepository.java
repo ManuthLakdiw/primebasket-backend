@@ -3,6 +3,8 @@ package dev.manuthlakdiw.primebasketbackend.repository;
 import dev.manuthlakdiw.primebasketbackend.entity.OrderEntity;
 import dev.manuthlakdiw.primebasketbackend.entity.types.OrderStatusType;
 import dev.manuthlakdiw.primebasketbackend.entity.types.PaymentStatusType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -28,5 +30,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
             PaymentStatusType paymentStatus,
             LocalDateTime timeLimit
     );
+
+    Page<OrderEntity> findByStatus(OrderStatusType status, Pageable pageable);
 
 }

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"adminOrders", "orderDetails"}, allEntries = true)
     public String handlePayHereNotify(PayHereNotifyRequest notifyRequest) {
         String merchantId = notifyRequest.merchantId();
         String orderId = notifyRequest.orderId();

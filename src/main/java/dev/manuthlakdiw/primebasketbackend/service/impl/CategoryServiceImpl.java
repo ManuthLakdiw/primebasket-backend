@@ -78,7 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"category", "categories"}, allEntries = true)
+    @CacheEvict(value = {"category", "categories", "products"}, allEntries = true)
     public String deleteCategory(long id) {
         CategoryEntity categoryToDelete = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found!"));

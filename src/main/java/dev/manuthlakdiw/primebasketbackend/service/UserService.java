@@ -3,7 +3,6 @@ package dev.manuthlakdiw.primebasketbackend.service;
 import dev.manuthlakdiw.primebasketbackend.dto.user.*;
 import dev.manuthlakdiw.primebasketbackend.dto.common.PageResponse;
 import dev.manuthlakdiw.primebasketbackend.entity.types.AddressType;
-import dev.manuthlakdiw.primebasketbackend.projection.UserSummaryProjection;
 
 import java.util.UUID;
 

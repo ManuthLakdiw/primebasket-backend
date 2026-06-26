@@ -16,4 +16,9 @@ public interface EmailService {
     void sendAccountLockedAlert(UserEntity userEntity);
 
     void sendOrderConfirmation(UserEntity user, OrderEntity order);
+
+    void sendOrderCancellationAlert(UserEntity user, OrderEntity order, String reason);
+
+    void sendOrderDeliveredAlert(UserEntity user, OrderEntity order);
+
 }
