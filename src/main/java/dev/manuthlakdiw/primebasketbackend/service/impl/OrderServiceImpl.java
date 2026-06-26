@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "userCart", key = "#email")
+    @CacheEvict(value = {"userCart", "adminOrders", "products", "product"}, allEntries = true)
     public String createOrder(String email, CreateOrderRequest request) {
 
         UserEntity user = userRepository.findByEmail(email)
@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
     @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Colombo")
     @Transactional
     @Async
-    @CacheEvict(value = {"adminOrders", "orderDetails"}, allEntries = true)
+    @CacheEvict(value = {"adminOrders", "orderDetails", "products", "product"}, allEntries = true)
     public void cancelAbandonedOrders() {
         LocalDateTime fifteenMinsAgo = LocalDateTime.now().minusMinutes(15);
 

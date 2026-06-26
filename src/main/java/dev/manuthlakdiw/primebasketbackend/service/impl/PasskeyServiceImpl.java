@@ -13,6 +13,8 @@ import dev.manuthlakdiw.primebasketbackend.repository.UserRepository;
 import dev.manuthlakdiw.primebasketbackend.service.PasskeyService;
 import dev.manuthlakdiw.primebasketbackend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class PasskeyServiceImpl implements PasskeyService {
     private final StringRedisTemplate redisTemplate;
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+    private final CacheManager cacheManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -188,6 +191,17 @@ public class PasskeyServiceImpl implements PasskeyService {
                 user.setLastLogin(java.time.LocalDateTime.now());
 
                 userRepository.save(user);
+
+                Cache userFullDetailsCache = cacheManager.getCache("userFullDetails");
+                if (userFullDetailsCache != null) {
+                    userFullDetailsCache.evict(user.getId());
+                }
+                Cache userProfilesCache = cacheManager.getCache("userProfiles");
+                if (userProfilesCache != null) {
+                    userProfilesCache.evict(email);
+                }
+
+
                 return new LoginResponse(accessToken, refreshToken);
             } else {
                 throw new RuntimeException("Invalid passkey signature");
