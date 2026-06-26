@@ -9,6 +9,7 @@ import dev.manuthlakdiw.primebasketbackend.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -340,7 +341,8 @@ public class EmailServiceImpl implements EmailService {
                \s""".formatted(firstName);
     }
 
-    private void saveEmailLog(UserEntity user, String subject, String body, MailStatusType status, String error) {
+    @CacheEvict(value = "emailLogs", allEntries = true)
+    public void saveEmailLog(UserEntity user, String subject, String body, MailStatusType status, String error) {
         EmailLogEntity log = EmailLogEntity.builder()
                 .recipientEmail(user.getEmail())
                 .subject(subject)

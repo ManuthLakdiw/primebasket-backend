@@ -6,6 +6,8 @@ import dev.manuthlakdiw.primebasketbackend.entity.types.PaymentStatusType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -32,5 +34,12 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     );
 
     Page<OrderEntity> findByStatus(OrderStatusType status, Pageable pageable);
+
+    @Query("SELECT o FROM OrderEntity o WHERE o.createdAt >= :startDate AND o.status != 'CANCELLED'")
+    List<OrderEntity> findValidOrdersSince(@Param("startDate") java.time.LocalDateTime startDate);
+
+    @Query("SELECT o.status, COUNT(o) FROM OrderEntity o GROUP BY o.status")
+    List<Object[]> countOrdersByStatus();
+
 
 }

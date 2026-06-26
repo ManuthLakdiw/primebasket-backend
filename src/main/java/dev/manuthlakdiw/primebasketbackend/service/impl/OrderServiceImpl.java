@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"userCart", "adminOrders", "products", "product"}, allEntries = true)
+    @CacheEvict(value = {"userCart", "adminOrders", "products", "product", "reports"}, allEntries = true)
     public String createOrder(String email, CreateOrderRequest request) {
 
         UserEntity user = userRepository.findByEmail(email)
@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
     @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Colombo")
     @Transactional
     @Async
-    @CacheEvict(value = {"adminOrders", "orderDetails", "products", "product"}, allEntries = true)
+    @CacheEvict(value = {"adminOrders", "orderDetails", "products", "product", "reports"}, allEntries = true)
     public void cancelAbandonedOrders() {
         LocalDateTime fifteenMinsAgo = LocalDateTime.now().minusMinutes(15);
 
@@ -210,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    @CacheEvict(value = {"adminOrders", "orderDetails"}, allEntries = true)
+    @CacheEvict(value = {"adminOrders", "orderDetails", "reports"}, allEntries = true)
     public void updateOrderStatus(UUID orderId, OrderStatusType newStatus, String reason) {
         OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));

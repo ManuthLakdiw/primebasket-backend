@@ -39,7 +39,7 @@ public class OrderController {
     }
 
     @SecurityRequirement(name = "BearerAuth")
-    @GetMapping(params = "status")
+    @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
     public PageResponse<OrderSummaryResponse> getOrders(
             @RequestParam(required = false) OrderStatusType status,

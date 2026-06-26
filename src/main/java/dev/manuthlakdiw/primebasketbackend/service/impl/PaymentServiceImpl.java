@@ -55,7 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"adminOrders", "orderDetails"}, allEntries = true)
+    @CacheEvict(value = {"adminOrders", "orderDetails", "reports"}, allEntries = true)
     public String handlePayHereNotify(PayHereNotifyRequest notifyRequest) {
         String merchantId = notifyRequest.merchantId();
         String orderId = notifyRequest.orderId();
