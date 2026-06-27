@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict(value = {"userProfiles", "allUsers", "userFullDetails"}, allEntries = true)
+    @CacheEvict(value = {"userProfiles", "allUsers", "userFullDetails", "dashboardSummary"}, allEntries = true)
     public String toggleUserActivation(UUID userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
