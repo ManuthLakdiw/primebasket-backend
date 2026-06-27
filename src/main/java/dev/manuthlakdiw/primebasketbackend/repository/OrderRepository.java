@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -41,5 +42,12 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     @Query("SELECT o.status, COUNT(o) FROM OrderEntity o GROUP BY o.status")
     List<Object[]> countOrdersByStatus();
 
+    @Query("SELECT COALESCE(SUM(o.finalTotal), 0) FROM OrderEntity o WHERE o.status IN ('DELIVERED', 'PROCESSING', 'SHIPPED')")
+    BigDecimal calculateTotalSales();
 
+    @Query("SELECT COUNT(o) FROM OrderEntity o WHERE o.status = 'PENDING'")
+    long countPendingOrders();
+
+
+    Page<OrderEntity> findOrderEntitiesByUser_Email(String userEmail, Pageable pageable);
 }

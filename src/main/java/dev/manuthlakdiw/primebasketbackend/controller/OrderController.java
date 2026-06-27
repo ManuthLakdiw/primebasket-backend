@@ -50,7 +50,6 @@ public class OrderController {
 
     @SecurityRequirement(name = "BearerAuth")
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public OrderDetailsResponse getOrderDetails(@PathVariable UUID id) {
         return orderService.getOrderDetails(id);
     }
@@ -66,6 +65,22 @@ public class OrderController {
             @RequestParam(required = false) String reason) {
 
         orderService.updateOrderStatus(id, newStatus, reason);
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @GetMapping("/my-orders")
+    public PageResponse<OrderSummaryResponse> getMyOrders(
+            Principal principal,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return orderService.getMyOrders(principal.getName(), page, size);
+    }
+
+    @SecurityRequirement(name = "BearerAuth")
+    @PatchMapping("/{id}/cancel")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelMyOrder(Principal principal, @PathVariable UUID id) {
+        orderService.cancelOrder(id, principal.getName());
     }
 
 }

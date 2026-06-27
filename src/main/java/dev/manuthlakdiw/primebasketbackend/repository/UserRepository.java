@@ -31,4 +31,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     Optional<UserEntity> findByEmail(String email);
 
     Page<UserEntity> findAllByRole(RoleType role, Pageable pageable);
+
+    @Query("SELECT COUNT(u) FROM UserEntity u WHERE u.role = 'USER' AND u.isActivated = true")
+    long countActiveCustomers();
 }

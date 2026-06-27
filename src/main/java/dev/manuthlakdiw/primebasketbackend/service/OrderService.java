@@ -27,4 +27,8 @@ public interface OrderService {
 
     void updateOrderStatus(UUID orderId, OrderStatusType newStatus, String reason);
 
+    PageResponse<OrderSummaryResponse> getMyOrders(String email, int page, int size);
+
+    void cancelOrder(UUID orderId, String email);
+
 }

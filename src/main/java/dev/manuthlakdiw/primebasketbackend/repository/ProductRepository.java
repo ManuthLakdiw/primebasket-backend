@@ -124,4 +124,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
             nativeQuery = true)
     Page<ProductEntity> searchAllActiveProducts(@Param("keyword") String keyword, Pageable pageable);
 
+    @Query("SELECT COUNT(p) FROM ProductEntity p WHERE p.isDeleted = false")
+    long countTotalProducts();
+    
+
 }

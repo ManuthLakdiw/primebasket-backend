@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    @CacheEvict(value = {"products", "categories"}, allEntries = true)
+    @CacheEvict(value = {"products", "categories", "dashboardSummary"}, allEntries = true)
     public ProductResponse createProduct(ProductRequest request) {
 
         if (productRepository.existsBySkuAndIsDeletedFalse(request.sku())) {
@@ -84,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Override
     @CachePut(value = "product", key = "#id")
-    @CacheEvict(value = {"products", "orderDetails", "categories"}, allEntries = true)
+    @CacheEvict(value = {"products", "orderDetails", "categories", "dashboardSummary"}, allEntries = true)
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
@@ -124,7 +124,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    @CacheEvict(value = {"product", "products", "orderDetails", "categories"}, allEntries = true)
+    @CacheEvict(value = {"product", "products", "orderDetails", "categories", "dashboardSummary"}, allEntries = true)
     public String deleteProduct(Long id) {
         ProductEntity existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));

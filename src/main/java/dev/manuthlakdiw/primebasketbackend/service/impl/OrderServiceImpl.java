@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"userCart", "adminOrders", "products", "product", "reports"}, allEntries = true)
+    @CacheEvict(value = {"userCart", "adminOrders", "products", "product", "reports", "dashboardSummary", "userOrders"}, allEntries = true)
     public String createOrder(String email, CreateOrderRequest request) {
 
         UserEntity user = userRepository.findByEmail(email)
@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
     @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Colombo")
     @Transactional
     @Async
-    @CacheEvict(value = {"adminOrders", "orderDetails", "products", "product", "reports"}, allEntries = true)
+    @CacheEvict(value = {"adminOrders", "orderDetails", "products", "product", "reports", "dashboardSummary", "userOrders"}, allEntries = true)
     public void cancelAbandonedOrders() {
         LocalDateTime fifteenMinsAgo = LocalDateTime.now().minusMinutes(15);
 
@@ -210,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    @CacheEvict(value = {"adminOrders", "orderDetails", "reports"}, allEntries = true)
+    @CacheEvict(value = {"adminOrders", "orderDetails", "reports", "dashboardSummary", "products", "product"}, allEntries = true)
     public void updateOrderStatus(UUID orderId, OrderStatusType newStatus, String reason) {
         OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -231,11 +231,71 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(newStatus);
 
         if (newStatus == OrderStatusType.CANCELLED) {
+            order.getOrderItems().forEach(item -> {
+                ProductEntity product = item.getProduct();
+                product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+                productRepository.save(product);
+            });
             emailService.sendOrderCancellationAlert(order.getUser(), order, reason);
         } else if (newStatus == OrderStatusType.DELIVERED) {
             emailService.sendOrderDeliveredAlert(order.getUser(), order);
         }
 
         orderRepository.save(order);
+    }
+
+    @Override
+    @Cacheable(value = "userOrders", key = "#email + '_' + #page + '_' + #size")
+    public PageResponse<OrderSummaryResponse> getMyOrders(String email, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<OrderEntity> orderPage = orderRepository.findOrderEntitiesByUser_Email(email, pageable);
+
+        Page<OrderSummaryResponse> dtoPage = orderPage.map(order -> new OrderSummaryResponse(
+                order.getId().toString(),
+                order.getOrderNumber(),
+                order.getCreatedAt(),
+                order.getUser().getFirstName() + " " + order.getUser().getLastName(),
+                order.getFinalTotal(),
+                order.getStatus()
+        ));
+
+        return PageResponse.from(dtoPage);
+    }
+
+
+    @Override
+    @CacheEvict(
+            value = {"userOrders", "adminOrders", "orderDetails", "dashboardSummary", "products", "product", "reports"},
+            allEntries = true
+    )
+    @Transactional
+    public void cancelOrder(UUID orderId, String email) {
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getUser().getEmail().equals(email)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        List<OrderStatusType> cancelableStatuses = List.of(
+                OrderStatusType.PENDING,
+                OrderStatusType.PROCESSING,
+                OrderStatusType.PROCEED
+        );
+
+        if (!cancelableStatuses.contains(order.getStatus())) {
+            throw new RuntimeException("Order cannot be cancelled in current status: " + order.getStatus());
+        }
+
+        order.getOrderItems().forEach(item -> {
+            ProductEntity product = item.getProduct();
+            product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+            productRepository.save(product);
+        });
+
+        order.setStatus(OrderStatusType.CANCELLED);
+        order.setPaymentStatus(PaymentStatusType.FAILED);
+        orderRepository.save(order);
+
     }
 }
