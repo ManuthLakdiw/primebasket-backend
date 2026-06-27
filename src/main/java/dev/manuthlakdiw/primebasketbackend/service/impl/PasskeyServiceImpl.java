@@ -44,7 +44,7 @@ public class PasskeyServiceImpl implements PasskeyService {
     private final CacheManager cacheManager;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> generateRegisterOptions(String email) {
         UserEntity user = userRepository.findUserEntityByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -122,7 +122,7 @@ public class PasskeyServiceImpl implements PasskeyService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> generateLoginOptions(String email) {
         try {
             AssertionRequest request = relyingParty.startAssertion(
