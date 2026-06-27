@@ -210,7 +210,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    @CacheEvict(value = {"adminOrders", "orderDetails", "reports", "dashboardSummary", "products", "product"}, allEntries = true)
+    @CacheEvict(value = {"adminOrders", "orderDetails", "reports", "dashboardSummary", "products", "product", "orderDetails"}, allEntries = true)
     public void updateOrderStatus(UUID orderId, OrderStatusType newStatus, String reason) {
         OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -265,7 +265,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @CacheEvict(
-            value = {"userOrders", "adminOrders", "orderDetails", "dashboardSummary", "products", "product", "reports"},
+            value = {"userOrders", "adminOrders", "orderDetails", "dashboardSummary", "products", "product", "reports", "orderDetails"},
             allEntries = true
     )
     @Transactional
@@ -297,5 +297,37 @@ public class OrderServiceImpl implements OrderService {
         order.setPaymentStatus(PaymentStatusType.FAILED);
         orderRepository.save(order);
 
+    }
+
+    @Override
+    @Cacheable(value = "orderDetails", key = "#orderNumber")
+    public OrderDetailsResponse getOrderDetailsByNumber(String orderNumber, String email) {
+        OrderEntity order = orderRepository.findOrderEntitiesByOrderNumber(orderNumber)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getUser().getEmail().equals(email)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        return new OrderDetailsResponse(
+                order.getOrderNumber(),
+                order.getCreatedAt(),
+                order.getStatus(),
+                order.getPaymentStatus(),
+                order.getItemsTotal(),
+                order.getDeliveryFee(),
+                order.getFinalTotal(),
+                order.getShippingAddress(),
+                order.getUser().getFirstName() + " " + order.getUser().getLastName(),
+                order.getUser().getEmail(),
+                order.getUser().getTelephone(),
+                order.getOrderItems().stream().map(item -> new OrderItemResponse(
+                        item.getProduct().getName(),
+                        item.getQuantity(),
+                        item.getPriceAtPurchase(),
+                        item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())),
+                        item.getProduct().getImages().getFirst()
+                )).toList()
+        );
     }
 }

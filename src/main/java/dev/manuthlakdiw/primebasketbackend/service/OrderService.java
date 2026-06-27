@@ -31,4 +31,6 @@ public interface OrderService {
 
     void cancelOrder(UUID orderId, String email);
 
+    OrderDetailsResponse getOrderDetailsByNumber(String orderNumber, String email);
+
 }

@@ -83,4 +83,10 @@ public class OrderController {
         orderService.cancelOrder(id, principal.getName());
     }
 
+    @SecurityRequirement(name = "BearerAuth")
+    @GetMapping("/number/{orderNumber}")
+    public OrderDetailsResponse getOrderDetailsByNumber(@PathVariable String orderNumber, Principal principal) {
+        return orderService.getOrderDetailsByNumber(orderNumber, principal.getName());
+    }
+
 }
