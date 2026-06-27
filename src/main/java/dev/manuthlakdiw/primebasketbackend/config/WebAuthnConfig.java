@@ -14,14 +14,17 @@ public class WebAuthnConfig {
     @Bean
     public RelyingParty relyingParty(PasskeyCredentialRepository credentialRepository) {
         RelyingPartyIdentity rpIdentity = RelyingPartyIdentity.builder()
-                .id("localhost")
+                .id("primebasket-three.vercel.app")
                 .name("PrimeBasket")
                 .build();
 
         return RelyingParty.builder()
                 .identity(rpIdentity)
                 .credentialRepository(credentialRepository)
-                .origins(Set.of("http://localhost:3000"))
+                .origins(Set.of(
+                        "http://localhost:3000",
+                        "https://primebasket-three.vercel.app"
+                ))
                 .build();
     }
 }
